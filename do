@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -e ./.do.cfg ] ; then
-  echo "DO_CNAME=ispc" > ./.do.cfg
+  echo "DO_CNAME=mgw2" > ./.do.cfg
 fi
 SERVICEVOL=./service
 . ./.do.cfg
