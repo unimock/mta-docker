@@ -1,0 +1,8 @@
+[program:amavisd-milter]
+command=/usr/sbin/amavisd-milter -f -s inet:10101@127.0.0.1
+user = amavis
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+priority=20
+autorestart=true
+

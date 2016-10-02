@@ -1,0 +1,8 @@
+[program:spamassassin]
+#command= /usr/sbin/spamd         --create-prefs --max-children 5 --helper-home-dir
+command = /usr/sbin/spamd         --create-prefs --max-children 5 --username debian-spamd -H /var/log/spamassassin/ -s /var/log/spamassassin/spamd.log -4
+#command= /usr/sbin/spamd -D eval --create-prefs --max-children 4 --username spamd -H /var/log/spamassassin/ -s /var/log/spamassassin/spamd.log -4 -d --pidfile=/var/run/spamd.pid
+stdout_logfile=/var/log/supervisor/%(program_name)s.log
+stderr_logfile=/var/log/supervisor/%(program_name)s.log
+autorestart=true
+

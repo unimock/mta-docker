@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mkdir -p /var/log/spamassassin
+chown debian-spamd:debian-spamd /var/log/spamassassin
+
+# Fix cron.daily for spamassassin
+sed -i -e 's/invoke-rc.d spamassassin reload/\/etc\/init\.d\/spamassassin reload/g' /etc/cron.daily/spamassassin
+
+

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+_stop()
+{
+  echo Stopping macromilter 
+  list=`pgrep -f "/usr/bin/python macromilter.py"`
+  for i in $list ; do
+    kill -TERM $i
+  done
+  exit 0
+}
+
+trap   _stop   EXIT
+
+# start
+cd /etc/macromilter && exec /usr/bin/python macromilter.py > /etc/macromilter/run.log &
+# avoid exiting
+
+echo "waiting for term signal"
+
+
+sleep infinity
+

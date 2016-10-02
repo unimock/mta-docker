@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#mkdir -p /var/run/clamav/ && chown clamav:clamav /var/run/clamav
+#mkdir -p /var/lib/clamav/
+chown -R postfix:postfix etc/macromilter
+
