@@ -35,7 +35,7 @@ RUN apt-get -y install --no-install-recommends \
 
 # --- Install the SSH server
 RUN apt-get -y install --no-install-recommends \
-      openssh-server rsync git sendemail vim
+      openssh-server rsync git sendemail vim multitail
 
 # --- base packages
 RUN apt-get -y install --no-install-recommends \
@@ -71,15 +71,15 @@ RUN chown postfix:postfix -Rf /var/log/macromilter
 
 
 # --- Enable Spamassassin and CRON updates
-RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
+#RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
 
 # --- Enables Amavis
-RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
+#RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis && adduser amavis clamav
 RUN useradd -u 5000 -d /home/docker -s /bin/bash -p $(echo docker | openssl passwd -1 -stdin) docker
 
 # --- Enable Clamav
-RUN (crontab; echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
+#RUN (crontab; echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
 RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
 
 # --- Enables Pyzor and Razor
@@ -101,7 +101,7 @@ ADD main.cf-tomav     /etc/postfix/
 ADD master.cf-tomav   /etc/postfix/
 
 # --- Configuring Logs
-RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
+#RUN sed -i -r "/^#?compress/c\compress\ncopytruncate" /etc/logrotate.conf
 
 # --- Start-mailserver scripts
 ADD bin/generate-dkim-config /usr/local/bin/

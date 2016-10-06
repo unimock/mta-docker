@@ -35,6 +35,11 @@ if [ "$1" = "" ] ; then
   exit 0
 fi
 
+if [ "$1" = "ps" ] ; then
+  docker-compose ps
+fi
+
+
 if [ "$1" = "up" ] ; then
   docker-compose up -d
 fi
