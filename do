@@ -130,7 +130,8 @@ if [ "$1" = "cp" ] ; then
 fi
 if [ "$1" = "encrypt" ] ; then
     mkdir -p ./utils
-    tar cjv private | openssl aes-256-cbc -salt -out ./utils/.private.enc
+    tar cjv ./private | openssl aes-256-cbc -salt -out ./utils/.private.enc
+    rm -rvf ./private
     exit 0
 fi
 if [ "$1" = "decrypt" ] ; then

@@ -92,7 +92,7 @@ fi
 #sed -i -e 's/#MILTERSOCKET=inet:60001@127.0.0.1/MILTERSOCKET=inet:10101@127.0.0.1/g' /etc/default/amavisd-milter
 # macromilter
 #sed -i -e 's/inet:3690@127.0.0.1/inet:10103@127.0.0.1/g' /etc/macromilter/macromilter.py
-echo "Postfix configurations"
+#echo "Postfix configurations"
 # Fix permissions, but skip this if 3 levels deep the user id is already set
 if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep -c .` != 0 ]; then
   echo "Fixing /var/mail permissions"
@@ -100,14 +100,14 @@ if [ `find /var/mail -maxdepth 3 -a \( \! -user 5000 -o \! -group 5000 \) | grep
 else
   echo "Permissions in /var/mail look OK"
 fi
-echo "Creating /etc/mailname"
-echo $(hostname -d) > /etc/mailname
-echo "Configuring Spamassassin"
+#echo "Creating /etc/mailname"
+#echo $(hostname -d) > /etc/mailname
+#echo "Configuring Spamassassin"
 #FI=/etc/amavis/conf.d/20-debian_defaults
 #SA_TAG=${SA_TAG:="2.0"}    && sed -i -r 's/^\$sa_tag_level_deflt (.*);/\$sa_tag_level_deflt = '$SA_TAG';/g'    $FI
 #SA_TAG2=${SA_TAG2:="6.31"} && sed -i -r 's/^\$sa_tag2_level_deflt (.*);/\$sa_tag2_level_deflt = '$SA_TAG2';/g' $FI
 #SA_KILL=${SA_KILL:="6.31"} && sed -i -r 's/^\$sa_kill_level_deflt (.*);/\$sa_kill_level_deflt = '$SA_KILL';/g' $FI
-echo "Starting daemons"
+#echo "Starting daemons"
 #cron
 #rm -f /var/run/rsyslogd.pid
 #/etc/init.d/rsyslog start
