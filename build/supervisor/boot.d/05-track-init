@@ -2,8 +2,8 @@
 
 if [ ! -d /.git ] ; then
   cd /
-  git init
-  git add --all
-  git commit -m "Initialize git on first start up (05-track-init)."
+  git init >/dev/null
+  git add --all >/dev/null
+  git commit -m "Initialize git on first start up (05-track-init)." >/dev/null
 fi
 

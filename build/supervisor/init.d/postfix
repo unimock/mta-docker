@@ -13,4 +13,12 @@ for file in $FILES; do
      if [ -f  ${file} ]; then chmod a+rX ${file}; fi
 done
 
+echo " - creating /etc/mailname with <$(hostname -f)>"
+echo $(hostname -f) > /etc/mailname
 
+
+list=`cd /etc/postfix && ls *.db`
+for i in $list ; do
+   echo " - running postmap for </etc/postfix/${i%.db}>"
+   postmap /etc/postfix/${i%.db}
+done

@@ -1,13 +1,22 @@
 #!/bin/bash
 
 if [ ! -e ./.do.cfg ] ; then
-  echo "DO_CNAME=mgw2" > ./.do.cfg
+  echo "DO_CNAME=mta" > ./.do.cfg
 fi
 SERVICEVOL=./service
 . ./.do.cfg
 
 DCN=$DO_CNAME
 
+
+INFO=$(docker ps \
+  --no-trunc \
+  --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
+  grep '/start.sh')
+
+IMAGE_NAME=$(echo $INFO | awk '{print $1}')
+CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
+echo "IMAGE_NAME=$IMAGE_NAME CONTAINER_NAME=$CONTAINER_NAME"
 
 if [ "$1" = "" ] ; then
   echo "usage: `basename $0` <command>"

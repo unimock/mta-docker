@@ -9,3 +9,28 @@
 #  fi
 #done 
 
+##############################################################################################################################
+# Consolidate all state that should be persisted across container restarts into one mounted
+# directory
+voldir=/volume/data
+mkdir -p $voldir ; chmod a+rwx $voldir
+if [ -d $voldir ]; then
+  echo "Consolidating all state onto $voldir"
+  for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin; do
+    dest=$voldir/`echo $d | sed -e 's/.var.//; s/\//-/g'`
+    #dest=$voldir/${d#/}
+    if [ -d $dest ]; then
+      echo "  Destination $dest exists, linking $d to it"
+      rm -rf $d
+      ln -s $dest $d
+    elif [ -d $d ]; then
+      echo "  Moving contents of $d to $dest" 
+      mv $d $dest
+      ln -s $dest $d
+    else
+      echo "  Linking $d to $dest"
+      mkdir -p $dest
+      ln -s $dest $d
+    fi
+  done
+fi
