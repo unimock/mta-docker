@@ -49,7 +49,7 @@ RUN apt-get -y install --no-install-recommends \
 RUN apt-get -y install --no-install-recommends \
       postfix gamin amavisd-new spamassassin spamc razor pyzor libsasl2-modules \
       clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
-      cabextract cpio nomarch pax zip  \
+      cabextract cpio nomarch pax zip clamav-milter \
       opendkim opendkim-tools opendmarc curl ed iptables \
       amavisd-milter logwatch pflogsumm wget rsync telnet
       
