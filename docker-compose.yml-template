@@ -9,13 +9,12 @@ services:
       dockerfile: Dockerfile
       args:
         BUILD_TZ: Europe/Berlin
-        #BUILD_HOSTNAME: myhost.test.com
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/mta-docker:0.0.1
+    image: unimock/mta-docker:0.1.0
     container_name: mta
-    restart: never
+    restart: unless-stopped
     hostname: myhost
     domainname: test.com
     cap_add:
@@ -28,8 +27,8 @@ services:
       - DISABLE_OPENDKIM=1
       - DISABLE_OPENMARC=1
       # postfix ssh postfix rsyslog cron fail2ban clamav-daemon amavis spamassassin
-      - DISABLED_SERVICES=fail2ban
+      - DISABLED_SERVICES=fail2ban clamav-milter ssh
     ports:
       - "25:25"      # smtp
       - "587:587"    # submission
-      - "2222:22"      # sshd
+      #- "2345:22"      # sshd

@@ -13,6 +13,8 @@ for file in $FILES; do
      if [ -f  ${file} ]; then chmod a+rX ${file}; fi
 done
 
+mkdir -p /var/spool/postfix/var/lib/postfix
+
 echo " - creating /etc/mailname with <$(hostname -f)>"
 echo $(hostname -f) > /etc/mailname
 
