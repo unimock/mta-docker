@@ -125,6 +125,7 @@ RUN mkdir -p /usr/local/bin
 COPY ./bin/*             /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
 
+RUN rm -f /etc/cron.daily/upstart
 
 #
 # establisch supervisord
