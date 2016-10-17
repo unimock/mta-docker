@@ -1,25 +1,25 @@
 #!/bin/bash
 
-if [ ! -e ./.do.cfg ] ; then
-  echo "DO_CNAME=mta" > ./.do.cfg
+CFG=./.do.cfg
+DMC=./.do-machine.cfg
+
+if [ ! -e $CFG ] ; then
+  echo "DO_CNAME=ispc" > $CFG
 fi
+
 SERVICEVOL=./service
-. ./.do.cfg
+. $CFG
 
 DCN=$DO_CNAME
 
+if [ -f $DMC ] ; then
+. $DMC
+fi
 
-INFO=$(docker ps \
-  --no-trunc \
-  --format="{{.Image}}\t{{.Names}}\t{{.Command}}" | \
-  grep '/start.sh')
-
-IMAGE_NAME=$(echo $INFO | awk '{print $1}')
-CONTAINER_NAME=$(echo $INFO | awk '{print $2}')
-echo "IMAGE_NAME=$IMAGE_NAME CONTAINER_NAME=$CONTAINER_NAME"
 
 if [ "$1" = "" ] ; then
   echo "usage: `basename $0` <command>"
+  echo "          setup <container-name> [<machine-name>]"
   echo "          build ............... build image"
   echo "          up .................  create <$DCN> from image"
   echo "          rm .................  remove <$DCN>"
@@ -42,6 +42,30 @@ if [ "$1" = "" ] ; then
   echo "          track git <...> ..... git commands"
   echo "          cp <src> <target> ... copy between host and container"
   exit 0
+fi
+
+if [ ! -d ./build ] ; then
+  mkdir -p ./build
+fi
+
+
+if [ "$1" = "setup" ] ; then
+  if [ "$2" = "" ] ; then
+     echo "settings:"
+     cat $CFG
+     if [ -e $DMC ] ; then
+       cat $DMC
+     fi
+     exit 0
+  else
+    sed -i -e "s/^DO_CNAME=.*/DO_CNAME=$2/"       $CFG
+  fi
+  . $CFG
+  if [ "$3" != "" ] ; then
+    docker-machine env $3
+    docker-machine env $3 > $DMC
+    . $DMC
+  fi
 fi
 
 if [ "$1" = "ps" ] ; then
@@ -125,6 +149,7 @@ fi
 if [ "$1" = "backup" ] ; then
     mkdir -p backup
     sudo tar -cjvf ./backup/$DCN.tar.bz2 -C ${SERVICEVOL} .
+    echo "backup stored as <./backup/$DCN.tar.bz2>"
     exit 0
 fi
 if [ "$2" = "restore" ] ; then
@@ -140,7 +165,7 @@ fi
 if [ "$1" = "encrypt" ] ; then
     mkdir -p ./utils
     tar cjv ./private | openssl aes-256-cbc -salt -out ./utils/.private.enc
-    rm -rvf ./private
+    rm -Rvf ./private
     exit 0
 fi
 if [ "$1" = "decrypt" ] ; then
