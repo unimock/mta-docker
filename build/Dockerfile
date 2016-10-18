@@ -30,7 +30,7 @@ RUN apt-get update -q --fix-missing && apt-get -y upgrade
 
 # --- docker only stuff
 RUN apt-get -y install --no-install-recommends \
-      supervisor locales
+      supervisor locales software-properties-common
 
 # Ensure that we always use UTF-8 and with US English locale
 RUN locale-gen en_US.UTF-8
@@ -58,10 +58,6 @@ RUN touch /var/log/cron.log /var/log/auth.log
 # --- prepare building macromilter from stefan
 RUN apt-get update && apt-get install -y python2.7 python2.7-dev libmilter-dev libmilter1.0.1 python-pip
 
-# --- cleanup
-RUN apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
-    rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
-
 
 # --- build and install macromilter from stefan
 # install oletools
@@ -76,6 +72,42 @@ RUN wget -O /tmp/macromilter.zip  https://github.com/sbidy/MacroMilter/archive/m
 RUN touch /etc/macromilter/whitelist.list
 RUN chown postfix:postfix -Rf /etc/macromilter
 RUN chown postfix:postfix -Rf /var/log/macromilter
+
+
+# Greylist
+ENV GREYLIST_VERSION 4.4.3
+RUN apt-get install -y libcurl4-openssl-dev libspf2-dev byacc flex  
+RUN mkdir -p /usr/src/build/greylist && cd /usr/src/build/greylist && \
+    curl ftp://ftp.espci.fr/pub/milter-greylist/milter-greylist-${GREYLIST_VERSION}.tgz | tar zxv --strip-components=1 && \
+    LDFLAGS="-L/usr/lib/libmilter" CFLAGS="-I/usr/include/libmilter" \
+    ./configure \
+        --enable-dnsrbl \
+        --prefix=/usr \
+        --enable-postfix \
+        --with-user=postfix \
+        --with-conffile=/etc/greylist/greylist.conf \
+        --with-dumpfile=/etc/greylist/greylist.db \
+        --with-libcurl \
+        --with-libspf2 \
+        --enable-spamassassin \
+        --enable-p0f \
+        --with-delay=600 && \
+    make && make install && \
+    mkdir -p /var/spool/postfix/milter-greylist/ && chown -R postfix:postfix /var/spool/postfix/milter-greylist/ && \
+    mkdir -p /var/spool/postfix/greylist && chown -R postfix:postfix /var/spool/postfix/greylist
+
+ADD greylist /etc/greylist
+
+
+# Milter Manager
+RUN add-apt-repository -y ppa:milter-manager/ppa && apt-get update && apt-get -y install milter-manager
+
+#ADD milter-manager /etc/milter-manager
+
+
+# --- cleanup
+RUN apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
 
 
 # --- Enable Spamassassin and CRON updates

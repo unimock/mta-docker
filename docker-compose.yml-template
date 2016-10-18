@@ -26,8 +26,8 @@ services:
     environment:
       - DISABLE_OPENDKIM=1
       - DISABLE_OPENMARC=1
-      # postfix ssh postfix rsyslog cron fail2ban clamav-daemon amavis spamassassin
-      - DISABLED_SERVICES=fail2ban clamav-milter ssh
+      # postfix ssh postfix rsyslog cron fail2ban clamav-daemon amavis spamassassin milter-greylist milter-manager
+      - DISABLED_SERVICES=fail2ban clamav-milter ssh milter-greylist
     ports:
       - "25:25"      # smtp
       - "587:587"    # submission

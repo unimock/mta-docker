@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p /run/milter-manager
+chown -Rf postfix:postfix /run/milter-manager
