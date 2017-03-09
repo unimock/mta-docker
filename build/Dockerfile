@@ -15,7 +15,7 @@
 #
 FROM ubuntu:14.04
 
-MAINTAINER Uni Mock <unimock@gate-m.de> version: 0.0
+MAINTAINER Uni Mock <unimock@gate-m.de>
 
 # Let the container know that there is no tty
 ENV DEBIAN_FRONTEND noninteractive
@@ -126,6 +126,14 @@ COPY ./bin/*             /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*
 
 RUN rm -f /etc/cron.daily/upstart
+#
+# webproc
+#
+
+RUN mkdir -p /usr/local/sbin
+COPY ./sbin/*             /usr/local/sbin/
+RUN chmod a+x /usr/local/sbin/*
+COPY ./webproc.toml /etc/webproc.toml
 
 #
 # establisch supervisord
@@ -144,11 +152,6 @@ RUN  chmod a+x /sbin/reload /usr/sbin/invoke-rc.d
 RUN mkdir -p /service ; chmod a+rwx /service
 ADD track.gitignore /.gitignore
 
-#
-# Create bootstrap archives
-#
-#RUN mkdir -p /bootstrap ;  tar -C /var/vmail -czf /bootstrap/vmail.tgz .
-#RUN mkdir -p /bootstrap ;  tar -C /var/www   -czf /bootstrap/www.tgz  .
 ENV TERM xterm
 #
 # startup script

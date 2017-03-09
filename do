@@ -4,7 +4,7 @@ CFG=./.do.cfg
 DMC=./.do-machine.cfg
 
 if [ ! -e $CFG ] ; then
-  echo "DO_CNAME=ispc" >  $CFG
+  echo "DO_CNAME=mta" >  $CFG
   echo "DO_MNAME="     >> $CFG
 fi
 
@@ -82,6 +82,7 @@ if [ "$1" = "up" ] ; then
 fi
 
 if [ "$1" = "rm" ] ; then
+  docker-compose stop
   docker-compose rm -f
 fi
 
