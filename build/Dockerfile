@@ -43,7 +43,7 @@ ENV LC_ALL en_US.UTF-8
 
 # --- Install the SSH server
 RUN apt-get -y install --no-install-recommends \
-      openssh-server rsync git sendemail vim multitail nano
+      openssh-server rsync git sendemail vim multitail nano heirloom-mailx
 
 # --- base packages
 RUN apt-get -y install --no-install-recommends \
