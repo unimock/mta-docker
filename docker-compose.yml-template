@@ -12,7 +12,7 @@ services:
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/mta-docker:0.3.0
+    image: unimock/mta-docker:0.3.1
     container_name: mta
     restart: unless-stopped
     hostname: myhost

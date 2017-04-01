@@ -51,7 +51,7 @@ RUN apt-get -y install --no-install-recommends \
       clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
       cabextract cpio nomarch pax zip clamav-milter \
       opendkim opendkim-tools opendmarc curl ed iptables \
-      amavisd-milter logwatch pflogsumm wget rsync telnet
+      amavisd-milter logwatch pflogsumm wget rsync telnet sa-compile
       
 RUN touch /var/log/cron.log /var/log/auth.log
 

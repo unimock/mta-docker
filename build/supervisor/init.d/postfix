@@ -24,3 +24,13 @@ for i in $list ; do
    echo " - running postmap for </etc/postfix/${i%.db}>"
    postmap /etc/postfix/${i%.db}
 done
+
+mkdir -p /var/spool/postfix/var/lib/postfix/
+chown -f postfix:postfix /var/spool/postfix/var/lib/postfix
+if [ -f /var/lib/postfix/verify_cache.db ] ; then
+  mv -f /var/lib/postfix/verify_cache.db /var/spool/postfix/var/lib/postfix
+  chown -f postfix:postfix /var/spool/postfix/var/lib/postfix/verify_cache.db
+fi
+ln -sf /var/spool/postfix/var/lib/postfix/verify_cache.db /var/lib/postfix/verify_cache.db
+
+
