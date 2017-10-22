@@ -9,16 +9,17 @@ services:
       dockerfile: Dockerfile
       args:
         BUILD_TZ: Europe/Berlin
+        WEBPROC_VER: 0.1.9
     ##################################################
     # RUN section
     ##################################################
-    image: unimock/mta-docker:0.3.1
+    image: unimock/mta-docker:0.4.0
     container_name: mta
     restart: unless-stopped
     hostname: myhost
     domainname: test.com
-    cap_add:
-      - NET_ADMIN                        #  fail2ban (iptables)
+    #cap_add:
+    #  - NET_ADMIN                        #  fail2ban (iptables)
     volumes:
       - /Docker/docker_config/config/certbot/etc/:/etc/mycerts
       - ./service:/service       # service volume for overwrites (ovm) and migration (mig)

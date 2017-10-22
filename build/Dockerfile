@@ -129,10 +129,10 @@ RUN rm -f /etc/cron.daily/upstart
 #
 # webproc
 #
-
-RUN mkdir -p /usr/local/sbin
-COPY ./sbin/*             /usr/local/sbin/
-RUN chmod a+x /usr/local/sbin/*
+ARG WEBPROC_VER=0.1.8
+RUN mkdir -p /usr/local/sbin && \
+    wget -q -O - https://github.com/jpillora/webproc/releases/download/${WEBPROC_VER}/webproc_linux_amd64.gz | gunzip > /usr/local/sbin/webproc && \
+    chmod a+x /usr/local/sbin/webproc
 COPY ./webproc.toml /etc/webproc.toml
 
 #

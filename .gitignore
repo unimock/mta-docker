@@ -1,6 +1,7 @@
 /.directory
 /.do.cfg
 /.do-machine.cfg
+/dc-service.yml
 /data/
 /docker-compose.yml
 /service/
