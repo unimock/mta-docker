@@ -16,9 +16,8 @@ voldir=/volume/data
 mkdir -p $voldir ; chmod a+rwx $voldir
 if [ -d $voldir ]; then
   echo "Consolidating all state onto $voldir"
-  for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin /var/log; do
+  for d in /var/spool/postfix /var/lib/postfix /var/lib/amavis /var/lib/clamav /var/lib/spamassassin /var/log /var/lib/logrotate ; do
     dest=$voldir/`echo $d | sed -e 's/.var.//; s/\//-/g'`
-    #dest=$voldir/${d#/}
     if [ -d $dest ]; then
       echo "  Destination $dest exists, linking $d to it"
       rm -rf $d

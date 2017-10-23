@@ -58,6 +58,13 @@ RUN touch /var/log/cron.log /var/log/auth.log
 # --- prepare building macromilter from stefan
 RUN apt-get update && apt-get install -y python2.7 python2.7-dev libmilter-dev libmilter1.0.1 python-pip
 
+# --- Geo-Plugin (spamassassin)
+RUN apt-get -y install libgeo-ip-perl && \
+    cd /usr/share/GeoIP && rm GeoIP.dat GeoIPv6.dat && \
+    wget -q -O - http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz | gunzip > GeoIP.dat   && \
+    wget -q -O - http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz              | gunzip > GeoIPv6.dat && \
+    echo "loadplugin Mail::SpamAssassin::Plugin::RelayCountry"  >> /etc/spamassassin/init.pre
+
 # --- cleanup
 RUN apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
     rm -rf /usr/share/locale/* && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/*
