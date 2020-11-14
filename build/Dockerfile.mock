@@ -3,43 +3,73 @@ FROM debian:buster
 ENV PATH="/container/scripts:${PATH}"
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get -q -y update \
- && apt-get -q -y install locales supervisor \
-                          telnet rsync wget sendemail vim s.nail curl ed \
-                          net-tools \
-                          postfix \
-                          rsyslog \
-                          clamav clamav-daemon amavisd-new spamassassin razor pyzor sa-compile \
-                          clamav-milter amavisd-milter \
-                          arj bzip2 cabextract cpio file gzip nomarch pax unzip zip  p7zip \
-                          opendkim opendkim-tools \
-                          gamin libsasl2-modules \
-                          libnet-dns-perl libmail-spf-perl \
-                          logwatch pflogsumm  \
- && apt-get -q -y clean \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/locale/* /usr/share/man/* /usr/share/doc/*
- 
-
-
 # --- set timezone
 ARG BUILD_TZ="Europe/Berlin"
 RUN echo "$BUILD_TZ" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata
 
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=en_US.UTF-8
+# --- prepare apt
+RUN apt-get update -q --fix-missing && apt-get -y upgrade
+
+# --- docker only stuff
+RUN apt-get -y install --no-install-recommends \
+      supervisor locales
+
+# Ensure that we always use UTF-8 and with US English locale
+RUN locale-gen en_US.UTF-8
+
+# configure locales
+RUN locale-gen en_US.UTF-8  
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-#RUN head -n $(grep -n RULES /etc/rsyslog.conf | cut -d':' -f1) /etc/rsyslog.conf > /etc/rsyslog.conf.new \
-#&& mv /etc/rsyslog.conf.new /etc/rsyslog.conf \
-#&& echo '*.*        /dev/stdout' >> /etc/rsyslog.conf \
-#&& sed -i '/imklog.so/d' /etc/rsyslog.conf
-
+# --- packages
+RUN apt-get -y install --no-install-recommends \
+      openssl net-tools rsync sendemail vim s.nail \
+      postfix gamin amavisd-new spamassassin spamc razor pyzor libsasl2-modules \
+      clamav clamav-daemon libnet-dns-perl libmail-spf-perl bzip2 file gzip p7zip unzip arj rsyslog \
+      cabextract cpio nomarch pax zip clamav-milter \
+      opendkim opendkim-tools opendmarc curl ed \
+      amavisd-milter logwatch pflogsumm wget rsync telnet sa-compile
+      
 RUN touch /var/log/cron.log /var/log/auth.log
 
+## --- prepare building macromilter from stefan
+#RUN apt-get update && apt-get install -y python2.7 python2.7-dev libmilter-dev libmilter1.0.1 python-pip
+#
+## --- Geo-Plugin (spamassassin)
+#RUN apt-get -y install libgeo-ip-perl && \
+#    cd /usr/share/GeoIP && rm GeoIP.dat GeoIPv6.dat && \
+#    wget -q -O - http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz | gunzip > GeoIP.dat   && \
+#    wget -q -O - http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz              | gunzip > GeoIPv6.dat && \
+#    echo "loadplugin Mail::SpamAssassin::Plugin::RelayCountry"  >> /etc/spamassassin/init.pre
+
+# --- cleanup
+RUN apt-get autoclean && rm -rf /var/lib/apt/lists/* && \
+    rm -rf /usr/share/locale/* /usr/share/man/* /usr/share/doc/* /tmp/* /var/tmp/*
+
+
+## --- build and install macromilter from stefan
+## install oletools
+#RUN pip install oletools
+## install pymilter --> maybe you need some addtional dependencies - see doc
+#RUN pip install pymilter
+#RUN mkdir -p /etc/macromilter /var/log/macromilter/ /var/log/macromilter/log
+#RUN wget -O /tmp/macromilter.zip  https://github.com/sbidy/MacroMilter/archive/master.zip && \
+#    cd /tmp && \
+#    unzip macromilter.zip && \
+#    cp -v ./MacroMilter-master/macromilter/macromilter.py /etc/macromilter/
+#RUN touch /etc/macromilter/whitelist.list
+#RUN chown postfix:postfix -Rf /etc/macromilter
+#RUN chown postfix:postfix -Rf /var/log/macromilter
+
+
+# --- Enable Spamassassin and CRON updates
+#RUN sed -i -r 's/^(CRON|ENABLED)=0/\1=1/g' /etc/default/spamassassin
+
+# --- Enables Amavis
+#RUN sed -i -r 's/#(@|   \\%)bypass/\1bypass/g' /etc/amavis/conf.d/15-content_filter_mode
 RUN adduser clamav amavis
 
 #
@@ -79,13 +109,13 @@ RUN postconf -e 'mydestination=localhost, localhost.localdomain, localhost' \
  && postconf -e 'local_transport = error:local mail delivery is disabled'
 
 
+# --- Enable Clamav
+#RUN chmod 644 /etc/clamav/freshclam.conf && freshclam
 
-
-#
-# hier wieder mock zeugs
-#
-
-
+## --- Enables Pyzor and Razor
+#USER amavis
+#RUN razor-admin -create && razor-admin -register && pyzor discover
+#USER root
 
 # --- Configure DKIM (opendkim), DKIM config files
 ADD opendkim/opendkim.conf      /etc/opendkim.conf
@@ -121,9 +151,9 @@ RUN rm -f /etc/cron.daily/upstart
 #
 # webproc
 #
-ARG WEBPROC_VER=0.4.0
+ARG WEBPROC_VER=0.1.8
 RUN mkdir -p /usr/local/sbin && \
-    wget -q -O - https://github.com/jpillora/webproc/releases/download/v${WEBPROC_VER}/webproc_${WEBPROC_VER}_linux_amd64.gz | gunzip > /usr/local/sbin/webproc && \
+    wget -q -O - https://github.com/jpillora/webproc/releases/download/${WEBPROC_VER}/webproc_linux_amd64.gz | gunzip > /usr/local/sbin/webproc && \
     chmod a+x /usr/local/sbin/webproc
 COPY ./webproc.toml /etc/webproc.toml
 

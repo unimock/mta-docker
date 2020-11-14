@@ -1,4 +1,0 @@
-#/bin/bash
-
-echo " - setting cron entry for freshclam to <0 0,6,12,18 * * * >"
-(crontab; echo "0 0,6,12,18 * * * /usr/bin/freshclam --quiet") | sort - | uniq - | crontab -
