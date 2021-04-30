@@ -96,9 +96,10 @@ wait $PID
 echo "#################################################"
 echo "# shutdown container"
 echo "#"
-list=$(ls -1 /etc/supervisor/shutdown.d/*)
-for i in $list ; do
-  echo "execute: <$i>"
-  $i
-done
-
+if [ -d /etc/supervisor/shutdown.d/ ] ; then
+  list=$(ls -1 /etc/supervisor/shutdown.d/*)
+  for i in $list ; do
+    echo "execute: <$i>"
+    $i
+  done
+fi

@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -q -y update \
  && apt-get -q -y install locales supervisor \
-                          telnet rsync wget sendemail vim s.nail curl ed \
+                          telnet rsync wget sendemail vim s.nail curl ed less \
                           net-tools \
                           postfix \
                           rsyslog \
@@ -19,9 +19,7 @@ RUN apt-get -q -y update \
  && apt-get -q -y clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/locale/* /usr/share/man/* /usr/share/doc/*
  
-
-
-# --- set timezone
+# --- set timezone and locals
 ARG BUILD_TZ="Europe/Berlin"
 RUN echo "$BUILD_TZ" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata
@@ -78,23 +76,10 @@ RUN postconf -e 'mydestination=localhost, localhost.localdomain, localhost' \
  && postconf -e 'local_recipient_maps=' \
  && postconf -e 'local_transport = error:local mail delivery is disabled'
 
-
-
-
-#
-# hier wieder mock zeugs
-#
-
-
-
 # --- Configure DKIM (opendkim), DKIM config files
 ADD opendkim/opendkim.conf      /etc/opendkim.conf
 ADD opendkim/default-opendkim   /etc/default/opendkim
 ADD bin/generate-dkim-config    /usr/local/bin
-
-# --- Configure DMARC (opendmarc)
-ADD opendmarc/opendmarc.conf    /etc/opendmarc.conf
-ADD opendmarc/default-opendmarc /etc/default/opendmarc
 
 # --- add tomav postfix configuration files
 ADD main.cf-tomav     /etc/postfix/
@@ -132,7 +117,7 @@ COPY ./webproc.toml /etc/webproc.toml
 #
 ADD /supervisor /etc/supervisor
 # link old /etc/init.d/ startup scripts to supervisor
-RUN ls -m1    /etc/supervisor/services.d | while read i; do mv /etc/init.d/$i /etc/init.d/$i-orig ;  ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
+RUN ls -m1    /etc/supervisor/services.d | while read i; do if [ -f /etc/init.d/$i ] ; then mv /etc/init.d/$i /etc/init.d/$i-orig ; fi ;  ln -sf /etc/supervisor/super-init.sh /etc/init.d/$i ; done
 RUN ln -sf    /etc/supervisor/systemctl /bin/systemctl
 RUN chmod a+x /etc/supervisor/* /etc/supervisor/*.d/*
 COPY /supervisor/invoke-rc.d /usr/sbin/invoke-rc.d
@@ -142,7 +127,7 @@ RUN  chmod a+x /sbin/reload /usr/sbin/invoke-rc.d
 # create directory for service volume
 #
 RUN mkdir -p /service ; chmod a+rwx /service
-ADD track.gitignore /.gitignore
+#ADD track.gitignore /.gitignore
 
 ENV TERM xterm
 #
